@@ -14,12 +14,12 @@ class GetTrainDataService
 
     /**
      * Fetch train data from an external API using the provided station.
-     * Returns an array of TrainDataEntity on success, a raw string for non-JSON responses, or an array with an 'error' key on failure.
+     * Returns an array of TrainDataEntity on success or an array with an 'error' key on failure.
      *
      * @param string $station
-     * @return array|string|null  (array of TrainDataEntity objects on success)
+     * @return array (array of TrainDataEntity objects on success, or ['Error' => 'error message'] on failure)
      */
-    public function fetchTrainDataByStation(string $station): array|string|null
+    public function fetchTrainDataByStation(string $station): array
     {
         $apiUrl = $_ENV['TRAIN_ARRIVAL_URL'] ?? 'http://api.wmata.com/StationPrediction.svc/json/GetPrediction/{StationCodes}';
 
@@ -36,19 +36,21 @@ class GetTrainDataService
             ]);
 
             $status = $response->getStatusCode();
-            if ($status >= 400) {
-                $error = "External API returned HTTP $status for station $station";
+            if ($status !== 200) {
+                $error = "External API returned HTTP $status for station $station, error:{{$response->getContent(false)}}";
                 $this->logError($error);
                 return ['Error' => "{{$error}}"];
             }
 
             $contentType = $response->getHeaders()['content-type'][0] ?? '';
-            if (str_contains($contentType, 'application/json')) {
-                $data = $response->getContent(false);
-                return $this->mapToEntities($data);
+            if (!str_contains($contentType, 'application/json')) {
+                $error = "External API returned HTTP $status for station $station: Invalid format error - expected JSON but got '$contentType'";
+                $this->logError($error);
+                return ['Error' => "{{$error}}"];
             }
-
-            return $response->getContent(true);
+            // If we got here, we have a successful JSON response, so we can attempt to parse and map it to our entity
+            $data = $response->getContent(false);
+            return $this->mapToEntities($data);
         } catch (\Throwable $e) {
             return ['Error' => $e->getMessage()];
         }

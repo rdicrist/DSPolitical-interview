@@ -16,4 +16,4 @@ The Vue3 code can be found in `/frontend`:
 
 
 <!-- composer require symfony/http-client -->
-<!-- validate API key is something? -->
+<!-- validate API key as part of CD-->

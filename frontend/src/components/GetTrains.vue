@@ -12,7 +12,7 @@
       v-model="selected"
       @change="sendSelection"
     >
-      <option v-for="opt in options" :key="opt.value" :value="opt.value">
+      <option v-for="opt in trainStations" :key="opt.value" :value="opt.value">
         {{ opt.label }}
       </option>
     </select>
@@ -49,8 +49,9 @@
 
   // TODO: use the API to pull the station names / codes instead of manually entering them
   // TODO: include the other metro lines (currently just the red line) and their stations
-const options = [
+const trainStations = [
   { value: '', label: 'Please select a train station' },
+  // Select this value to see error handling in action, since this station code does not exist in the WMATA API
   { value: 'BBB', label: 'Error Example' },
   { value: 'A15', label: 'Shady Grove' },
   { value: 'A14', label: 'Rockville' },
@@ -85,6 +86,7 @@ const selected = ref('')
 const sending = ref(false)
 const status = ref('')
 
+// TODO: Extract this function to a separate composable or service file if it needs to be reused across multiple components, or if it grows in complexity. For now, it's simple enough to keep it here in the component.
 async function sendSelection() {
   if (!selected.value) return null
   sending.value = true
