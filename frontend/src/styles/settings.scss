@@ -1,16 +1,37 @@
-/**
- * src/styles/settings.scss
- *
- * Configures SASS variables and Vuetify overwrites
- */
+// TODO: This file currently has the styles for the GetTrains component, as it is the only component that has styles. If more components with styles are added, will split this into multiple files
 
-// https://vuetifyjs.com/features/sass-variables/`
-// @use 'vuetify/settings' with (
-//   $color-pack: false
-// );
+.page { 
+    padding: 1rem; 
+}
+label { 
+    display: block; 
+    margin-bottom: 0.5rem; 
+}
+select { 
+    padding: 0.5rem; 
+    border-radius: 4px; 
+    border: 1px solid #ccc; 
+    color: black;
+}
+.status { 
+    margin-top: 0.5rem; 
+    color: #444; 
+}
+.error { 
+    color: red; 
+    font-weight: bold; 
+    margin-top: 1rem; 
+}
 
-.page { padding: 1rem; }
-label { display: block; margin-bottom: 0.5rem; }
-select { padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; color: black;}
-.status { margin-top: 0.5rem; color: #444; }
-.error { color: red; font-weight: bold; margin-top: 1rem; }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: auto !important;
+  word-wrap: break-word;
+}
+
+td {
+  padding: 24px;
+  text-align: center;
+  border-bottom: 1px solid rgb(202, 44, 9);
+}

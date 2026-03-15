@@ -17,5 +17,3 @@ The Vue3 code can be found in `/frontend`:
 
 <!-- composer require symfony/http-client -->
 <!-- validate API key is something? -->
-<!-- use the API to pull the station names / codes instead of manually entering them -->
-<!-- seperate by line instead of massive list -->

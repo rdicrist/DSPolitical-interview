@@ -5,42 +5,40 @@
     </div>
     <h1>WMATA Train Information</h1>
 
-      <label for="my-dropdown">Choose a train station to view upcoming trains on the Red Line:</label>
-      <select
-        id="my-dropdown"
-        v-model="selected"
-        @change="sendSelection"
-      >
-        <option v-for="opt in options" :key="opt.value" :value="opt.value">
-          {{ opt.label }}
-        </option>
-      </select>
+    <!-- Station Selection Dropdown, populated by options list below -->
+    <label for="my-dropdown">Choose a train station to view upcoming trains on the Red Line:</label>
+    <select
+      id="my-dropdown"
+      v-model="selected"
+      @change="sendSelection"
+    >
+      <option v-for="opt in options" :key="opt.value" :value="opt.value">
+        {{ opt.label }}
+      </option>
+    </select>
 
-      <!-- For Debugging: -->
-      <!-- <p>Selected: {{ selected }}</p> -->
-      <!-- <p v-if="status" class="status">{{ status }}</p> -->
+    <!-- Display train data in a table, if request succeeds aka no error from backend or from axios-->
+    <table v-if="status && !status.includes('Error')">
+      <thead>
+        <tr>
+          <th>Destination</th>
+          <th>Minutes To Arrival</th>
+          <th>Number of Cars</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(train, index) in JSON.parse(status)" :key="index">
+          <td>{{ train.destination }}</td>
+          <td>{{ train.min }}</td>
+          <td>{{ train.cars }}</td>
+        </tr>
+      </tbody>
+    </table>
 
-      <table v-if="status && !status.includes('error')">
-        <thead>
-          <tr>
-            <th>Destination</th>
-            <th>Minutes To Arrival</th>
-            <th>Number of Cars</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(train, index) in JSON.parse(status)" :key="index">
-            <td>{{ train.destination }}</td>
-            <td>{{ train.min }}</td>
-            <td>{{ train.cars }}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Generic error message for a failed request -->
-      <div class="error" v-else-if="status && status.includes('error')">
-        <h2>No train data available for this station. Please try again later.</h2>
-      </div>
+    <!-- Generic error message for a failed request or error from backend -->
+    <div class="error" v-else-if="status && status.includes('Error')">
+      <h2>No train data available for this station. Please try again later.</h2>
+    </div>
 
   </div>
 </template>
@@ -50,6 +48,7 @@
   import { ref } from 'vue';
 
   // TODO: use the API to pull the station names / codes instead of manually entering them
+  // TODO: include the other metro lines (currently just the red line) and their stations
 const options = [
   { value: '', label: 'Please select a train station' },
   { value: 'BBB', label: 'Error Example' },
@@ -114,4 +113,3 @@ async function sendSelection() {
   }
 }
 </script>
-

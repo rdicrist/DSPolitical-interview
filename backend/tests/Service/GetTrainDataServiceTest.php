@@ -28,6 +28,6 @@ class GetTrainDataServiceTest extends TestCase
     }
 
     // TODO: add more tests for error handling, non-JSON responses, and data mapping
-    // TODO: add tests for the private methods if possible (e.g., using reflection or by testing through public methods)
-    // TODO: consider using a real HTTP client with a mock server for integration testing of the full flow
+    // TODO: add tests for the private methods (e.g., using reflection or by testing through public methods)
+    // TODO: use a real HTTP client with a mock server for integration testing of the full flow
 }

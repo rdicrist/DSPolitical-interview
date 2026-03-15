@@ -39,7 +39,7 @@ class GetTrainDataService
             if ($status >= 400) {
                 $error = "External API returned HTTP $status for station $station";
                 $this->logError($error);
-                return ['error' => "{{$error}}"];
+                return ['Error' => "{{$error}}"];
             }
 
             $contentType = $response->getHeaders()['content-type'][0] ?? '';
@@ -50,7 +50,7 @@ class GetTrainDataService
 
             return $response->getContent(true);
         } catch (\Throwable $e) {
-            return ['error' => $e->getMessage()];
+            return ['Error' => $e->getMessage()];
         }
     }
 
