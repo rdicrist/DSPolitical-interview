@@ -26,4 +26,8 @@ class GetTrainDataServiceTest extends TestCase
         $this->assertIsArray($res);
         $this->assertEquals(['result' => 'ok'], $res);
     }
+
+    // TODO: add more tests for error handling, non-JSON responses, and data mapping
+    // TODO: add tests for the private methods if possible (e.g., using reflection or by testing through public methods)
+    // TODO: consider using a real HTTP client with a mock server for integration testing of the full flow
 }
