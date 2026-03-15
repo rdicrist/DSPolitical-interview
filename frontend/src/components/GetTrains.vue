@@ -1,6 +1,9 @@
 <template>
   <div class="page">
-    <h1>Welcome</h1>
+    <div id="wmata-logo">
+      <img src="../assets/wmata-logo.png" alt="WMATA Logo" width="100">
+    </div>
+    <h1>WMATA Train Information</h1>
 
       <label for="my-dropdown">Choose a train station to view upcoming trains on the Red Line:</label>
       <select id="my-dropdown" v-model="selected" @change="sendSelection">
@@ -22,6 +25,7 @@
           </tr>
         </thead>
         <tbody>
+          <!-- Add if conditions for empty fields -->
           <tr v-for="(train, index) in JSON.parse(status)" :key="index">
             <td>{{ train.destination }}</td>
             <td>{{ train.min }}</td>
