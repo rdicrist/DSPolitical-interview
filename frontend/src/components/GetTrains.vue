@@ -25,17 +25,21 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Add if conditions for empty fields -->
+          <!-- If conditions for empty fields -->
           <tr v-for="(train, index) in JSON.parse(status)" :key="index">
-            <td>{{ train.destination }}</td>
-            <td>{{ train.min }}</td>
-            <td>{{ train.cars }}</td>
+            <td>{{ train.destination || 'Unknown' }}</td>
+            <td>
+              {{ (train.min === 'ARR' || train.min == 0) ? 'Arriving' : (train.min != null && train.min !== '' ? train.min + ' min' : 'Unknown') }}
+            </td>
+            <td>{{ (train.cars != null && train.cars !== '') ? train.cars : 'Unknown' }}</td>
           </tr>
         </tbody>
       </table>
 
-      <div v-else-if="status && status.includes('error')">
-        <p>No train data available for this station.</p>
+      <!-- Generic error message for a failed request -->
+       <!-- TODO: Add red text and ! styling -->
+      <div class="error" v-else-if="status && status.includes('error')">
+        <h2>No train data available for this station. Please try again later.</h2>
       </div>
 
   </div>
@@ -111,9 +115,3 @@ async function sendSelection() {
 }
 </script>
 
-<style scoped>
-.page { padding: 1rem; max-width: 600px; }
-label { display: block; margin-bottom: 0.5rem; }
-select { padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; }
-.status { margin-top: 0.5rem; color: #444; }
-</style>
