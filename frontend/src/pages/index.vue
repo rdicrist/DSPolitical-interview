@@ -1,5 +1,5 @@
 <template>
-  <HelloWorld />
+  <GetTrains />
 </template>
 
 <script lang="ts" setup>

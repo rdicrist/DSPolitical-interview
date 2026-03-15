@@ -12,3 +12,10 @@ The Vue3 code can be found in `/frontend`:
 - Vue3 Documentation: https://vuejs.org/guide/introduction.html
 - An example Component can be found in `frontend/src/components/HelloWorld.vue`
 - The Component uses `axios` to call the REST Controller defined in Symfony
+
+
+
+<!-- composer require symfony/http-client -->
+<!-- validate API key is something? -->
+<!-- use the API to pull the station names / codes instead of manually entering them -->
+<!-- seperate by line instead of massive list -->
