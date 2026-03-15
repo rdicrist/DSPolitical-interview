@@ -6,7 +6,11 @@
     <h1>WMATA Train Information</h1>
 
       <label for="my-dropdown">Choose a train station to view upcoming trains on the Red Line:</label>
-      <select id="my-dropdown" v-model="selected" @change="sendSelection">
+      <select
+        id="my-dropdown"
+        v-model="selected"
+        @change="sendSelection"
+      >
         <option v-for="opt in options" :key="opt.value" :value="opt.value">
           {{ opt.label }}
         </option>
@@ -29,7 +33,11 @@
           <tr v-for="(train, index) in JSON.parse(status)" :key="index">
             <td>{{ train.destination || 'Unknown' }}</td>
             <td>
-              {{ (train.min === 'ARR' || train.min == 0) ? 'Arriving' : (train.min != null && train.min !== '' ? train.min + ' min' : 'Unknown') }}
+              {{ (
+                train.min === 'BRD' ? 'Boarding' :
+                train.min === 'ARR' || train.min == 0) ? 'Arriving' :
+                (train.min != null && train.min !== '' ? train.min + ' min' :
+                'Unknown') }}
             </td>
             <td>{{ (train.cars != null && train.cars !== '') ? train.cars : 'Unknown' }}</td>
           </tr>
@@ -37,7 +45,6 @@
       </table>
 
       <!-- Generic error message for a failed request -->
-       <!-- TODO: Add red text and ! styling -->
       <div class="error" v-else-if="status && status.includes('error')">
         <h2>No train data available for this station. Please try again later.</h2>
       </div>
@@ -51,7 +58,7 @@
 
   // TODO: use the API to pull the station names / codes instead of manually entering them
 const options = [
-  { value: '', label: 'Please select' },
+  { value: '', label: 'Please select a train station' },
   { value: 'BBB', label: 'Error Example' },
   { value: 'A15', label: 'Shady Grove' },
   { value: 'A14', label: 'Rockville' },
