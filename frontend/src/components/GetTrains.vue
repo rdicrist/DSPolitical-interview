@@ -29,17 +29,10 @@
           </tr>
         </thead>
         <tbody>
-          <!-- If conditions for empty fields -->
           <tr v-for="(train, index) in JSON.parse(status)" :key="index">
-            <td>{{ train.destination || 'Unknown' }}</td>
-            <td>
-              {{ (
-                train.min === 'BRD' ? 'Boarding' :
-                train.min === 'ARR' || train.min == 0) ? 'Arriving' :
-                (train.min != null && train.min !== '' ? train.min + ' min' :
-                'Unknown') }}
-            </td>
-            <td>{{ (train.cars != null && train.cars !== '') ? train.cars : 'Unknown' }}</td>
+            <td>{{ train.destination }}</td>
+            <td>{{ train.min }}</td>
+            <td>{{ train.cars }}</td>
           </tr>
         </tbody>
       </table>
