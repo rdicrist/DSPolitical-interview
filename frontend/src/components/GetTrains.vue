@@ -2,21 +2,38 @@
   <div class="page">
     <h1>Welcome</h1>
 
-      <label for="my-dropdown">Choose a train station:</label>
-      <select id="my-dropdown" v-model="selected">
+      <label for="my-dropdown">Choose a train station to view upcoming trains on the Red Line:</label>
+      <select id="my-dropdown" v-model="selected" @change="sendSelection">
         <option v-for="opt in options" :key="opt.value" :value="opt.value">
           {{ opt.label }}
         </option>
       </select>
 
-      <div class="actions">
-        <button @click="sendSelection" :disabled="!selected || sending">
-          {{ sending ? 'Sending…' : 'Send to backend' }}
-        </button>
+      <!-- For Debugging: -->
+      <!-- <p>Selected: {{ selected }}</p> -->
+      <!-- <p v-if="status" class="status">{{ status }}</p> -->
+
+      <table v-if="status && !status.includes('error')">
+        <thead>
+          <tr>
+            <th>Destination</th>
+            <th>Minutes To Arrival</th>
+            <th>Number of Cars</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(train, index) in JSON.parse(status)" :key="index">
+            <td>{{ train.destination }}</td>
+            <td>{{ train.min }}</td>
+            <td>{{ train.cars }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div v-else-if="status && status.includes('error')">
+        <p>No train data available for this station.</p>
       </div>
 
-      <p>Selected: {{ selected }}</p>
-      <p v-if="status" class="status">{{ status }}</p>
   </div>
 </template>
 
@@ -24,8 +41,10 @@
   import axios from 'axios';
   import { ref } from 'vue';
 
+  // TODO: use the API to pull the station names / codes instead of manually entering them
 const options = [
   { value: '', label: 'Please select' },
+  { value: 'BBB', label: 'Error Example' },
   { value: 'A15', label: 'Shady Grove' },
   { value: 'A14', label: 'Rockville' },
   { value: 'A13', label: 'Twinbrook' },
@@ -69,7 +88,7 @@ async function sendSelection() {
     })
     const data = res.data
 
-    status.value = 'Sent successfully' + (data ? ` — ${typeof data === 'string' ? data : JSON.stringify(data)}` : '')
+    status.value = (data ? `${typeof data === 'string' ? data : JSON.stringify(data)}` : '')
     return data
   } catch (err) {
     // axios error handling
@@ -92,7 +111,5 @@ async function sendSelection() {
 .page { padding: 1rem; max-width: 600px; }
 label { display: block; margin-bottom: 0.5rem; }
 select { padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; }
-.actions { margin-top: 0.75rem; }
-button { padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid #888; background: #fff; cursor: pointer; }
 .status { margin-top: 0.5rem; color: #444; }
 </style>

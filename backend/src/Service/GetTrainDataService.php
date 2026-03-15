@@ -64,7 +64,6 @@ class GetTrainDataService
     private function mapToEntities($data): array
     {
         $items = [];
-        // $json = '[{"name": "John", "age": 30}, {"name": "Jane", "age": 25}]';
         $trainData = json_decode($data, true);
 
         foreach ($trainData['Trains'] as $item) {
