@@ -38,7 +38,7 @@ Service Overview
         - Private function cleanData cleans and normalizes the data from the WMATA API before it is added to the return array in mapToEntities
         - Private function logError logs any errors that occur
     - Expected Flow
-        - A client will hit the controller endpoint with a train station code -> the service will hit the WMATA API endpoint and recieve train data based on the given code -> the data will be cleaned and parsed into an array of TrainDataEntity objects -> the array will be returned to the client
+        - A client will hit the controller endpoint with a train station code -> the rate limit will be checked and an error will throw if it has been exceeded -> the service will hit the WMATA API endpoint and recieve train data based on the given code -> the response will be checked for invalid format or statuses -> the data will be cleaned and parsed into an array of TrainDataEntity objects -> the array will be returned to the client
         - If there is an error, an Error will be returned to the client with the WMATA API response 
 - Testing
     - Unit tests would be written to test the happy path, all errors, and edge cases 
