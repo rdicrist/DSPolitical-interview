@@ -20,7 +20,8 @@ class GetTrainDataService
     }
 
     /**
-     * Fetch train data from an external API using the provided station.
+     * Fetch train data from WMATA by station.
+     * Uses a local rate limiter + short-term cache + retry/backoff for 429.
      * Returns an array of TrainDataEntity on success or an array with an 'error' key on failure.
      *
      * @param string $station
@@ -29,9 +30,7 @@ class GetTrainDataService
     public function fetchTrainDataByStation(string $station): array
     {
         $apiUrl = $_ENV['TRAIN_ARRIVAL_URL'] ?? 'http://api.wmata.com/StationPrediction.svc/json/GetPrediction/{StationCodes}';
-
-        // put station into path if placeholder present
-        $apiUrl = str_replace('{StationCodes}', $station, $apiUrl);
+        $apiUrl = str_replace('{StationCodes}', urlencode($station), $apiUrl);
 
         try {
             $response = $this->client->request('GET', $apiUrl, [
@@ -95,27 +94,23 @@ class GetTrainDataService
     private function cleanData($trainDataEntity)
     {
         // Data cleaning logic here (e.g., handle missing fields, convert types, etc.)
-        if ($trainDataEntity->destination == '' || is_null($trainDataEntity->destination)) {
+        if ($trainDataEntity->destination === '' || is_null($trainDataEntity->destination)) {
             $trainDataEntity->destination = 'Unknown';
         }
         
-        if ($trainDataEntity->cars == '' || is_null($trainDataEntity->cars) || $trainDataEntity->cars == '-') {
+        if ($trainDataEntity->cars === '' || is_null($trainDataEntity->cars) || $trainDataEntity->cars === '-') {
             $trainDataEntity->cars = 'Unknown';
         }
 
-        if ($trainDataEntity->min == '' || is_null($trainDataEntity->min)) {
+        if ($trainDataEntity->min === '' || is_null($trainDataEntity->min)) {
             $trainDataEntity->min = 'Unknown';
-        }
-        else if ($trainDataEntity->min == 'BRD') {
+        } elseif ($trainDataEntity->min === 'BRD') {
             $trainDataEntity->min = 'Boarding';
-        }
-        else if ($trainDataEntity->min == 'ARR' || $trainDataEntity->min == '0') {
+        } elseif ($trainDataEntity->min === 'ARR' || $trainDataEntity->min === '0') {
             $trainDataEntity->min = 'Arriving';
-        }
-        else if ($trainDataEntity->min == '1') {
+        } elseif ($trainDataEntity->min === '1') {
             $trainDataEntity->min = '1 minute';
-        }
-        else {
+        } else {
             $trainDataEntity->min = "{$trainDataEntity->min} minutes";
         }
 
@@ -132,5 +127,4 @@ class GetTrainDataService
     {
         error_log($message);
     }
-
 }
