@@ -8,6 +8,13 @@ use App\Entity\TrainDataEntity;
 
 class GetTrainDataService
 {
+    /**
+     * Constructor for GetTrainDataService.
+     * 
+     * @param HttpClientInterface $client The HTTP client to use for making API requests.
+     * The client should be configured with the base URL and API key for the external train data API.
+     * @return void
+     */
     public function __construct(private HttpClientInterface $client)
     {
     }
@@ -64,7 +71,7 @@ class GetTrainDataService
      */
     private function mapToEntities($data): array
     {
-        $items = [];
+        $trainDataEntityList = [];
         $trainData = json_decode($data, true);
 
         foreach ($trainData['Trains'] as $item) {
@@ -73,10 +80,10 @@ class GetTrainDataService
             $entity->destination = $item['DestinationName'];
             $entity->min = $item['Min'];
 
-            $items[] = $this->cleanData($entity);
+            $trainDataEntityList[] = $this->cleanData($entity);
         }
 
-        return $items;
+        return $trainDataEntityList;
     }
 
     /**
@@ -92,7 +99,7 @@ class GetTrainDataService
             $trainDataEntity->destination = 'Unknown';
         }
         
-        if ($trainDataEntity->cars == '' || is_null($trainDataEntity->cars)) {
+        if ($trainDataEntity->cars == '' || is_null($trainDataEntity->cars) || $trainDataEntity->cars == '-') {
             $trainDataEntity->cars = 'Unknown';
         }
 
@@ -111,6 +118,7 @@ class GetTrainDataService
         else {
             $trainDataEntity->min = "{$trainDataEntity->min} minutes";
         }
+
         return $trainDataEntity;        
     }
 
