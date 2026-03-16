@@ -32,7 +32,8 @@ Service Overview
     - GetTrainDataService:       
         - Service called by GetTrainDataController that queries the WMATA API to find upcoming trains for a given station, cleans and converts data into an array of TrainDataEntity objects, and returns the upcoming trains to the controller
         - Public function fetchTrainDataByStation is given a train station code, checks to ensure we are not utilizes the HttpClientInterface to call the WMATA API, handles errors, and returns a cleaned array of TrainDataEntity objects to the controller
-        - Private function checkRateLimit checks if the rate limit has been exceeded before sending the request to the WMATA API
+        - Private function checkRateLimit checks if the rate limit has been exceeded before sending the request to the WMATA API, throws an error if an issue is detected
+        - Private function checkInvalidResponse checks response codes and other issues with the WMATA response, throws an error if an issue is detected
         - Private function mapToEntities takes the JSON returned by the WMATA API and converts it into an array of TrainDataEntity objects
         - Private function cleanData cleans and normalizes the data from the WMATA API before it is added to the return array in mapToEntities
         - Private function logError logs any errors that occur
