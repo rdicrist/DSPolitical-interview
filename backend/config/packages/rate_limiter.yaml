@@ -1,8 +1,9 @@
 framework:
   rate_limiter:
-    wmata_api:
-      policy: token_bucket
-      limit: 30
-      rate:
-        interval: '1 minute'
-        amount: 30
+    limiters:
+      wmata_api:
+        policy: token_bucket
+        limit: 10
+        rate:
+          interval: '1 minute'
+          amount: 10

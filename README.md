@@ -31,10 +31,11 @@ Service Overview
 - Services
     - GetTrainDataService:       
         - Service called by GetTrainDataController that queries the WMATA API to find upcoming trains for a given station, cleans and converts data into an array of TrainDataEntity objects, and returns the upcoming trains to the controller
-        - Public function fetchTrainDataByStation is given a train station code, utilizes the HttpClientInterface to call the WMATA API, handles errors, and returns a cleaned array of TrainDataEntity objects to the controller
+        - Public function fetchTrainDataByStation is given a train station code, checks to ensure we are not utilizes the HttpClientInterface to call the WMATA API, handles errors, and returns a cleaned array of TrainDataEntity objects to the controller
+        - Private function checkRateLimit checks if the rate limit has been exceeded before sending the request to the WMATA API
         - Private function mapToEntities takes the JSON returned by the WMATA API and converts it into an array of TrainDataEntity objects
         - Private function cleanData cleans and normalizes the data from the WMATA API before it is added to the return array in mapToEntities
-        - Private function logError logs any errors that occur while calling the WMATA API
+        - Private function logError logs any errors that occur
     - Expected Flow
         - A client will hit the controller endpoint with a train station code -> the service will hit the WMATA API endpoint and recieve train data based on the given code -> the data will be cleaned and parsed into an array of TrainDataEntity objects -> the array will be returned to the client
         - If there is an error, an Error will be returned to the client with the WMATA API response 
@@ -43,6 +44,7 @@ Service Overview
     - Unit tests would be written to indirectly test the private functions
     - End to End tests would be written to test the WMATA API flow inside of my code
     - There is a WMATA API endpoint that tests your API key, an integration test would be written for this as well
+    - Integration test also needed for testing the RateLimiter
 
 Frontend Work:
 - 

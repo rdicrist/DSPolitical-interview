@@ -3,20 +3,25 @@
 namespace App\Service;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use App\Entity\TrainDataEntity;
 
 class GetTrainDataService
 {
+    private RateLimiterFactory $wmataApiRateLimiter;
+
     /**
      * Constructor for GetTrainDataService.
      * 
      * @param HttpClientInterface $client The HTTP client to use for making API requests.
+     * @param RateLimiterFactory $wmataApiRateLimiter The rate limiter factory for managing API request limits.
      * The client should be configured with the base URL and API key for the external train data API.
      * @return void
      */
-    public function __construct(private HttpClientInterface $client)
+    public function __construct(private HttpClientInterface $client, RateLimiterFactory $wmataApiRateLimiter)
     {
+        $this->wmataApiRateLimiter = $wmataApiRateLimiter;
     }
 
     /**
@@ -32,6 +37,9 @@ class GetTrainDataService
         $apiUrl = $_ENV['TRAIN_ARRIVAL_URL'] ?? 'http://api.wmata.com/StationPrediction.svc/json/GetPrediction/{StationCodes}';
         $apiUrl = str_replace('{StationCodes}', urlencode($station), $apiUrl);
 
+        // Check the rate limit before making the API request. If the limit has been hit, this will throw an exception with a retry message.
+        $this->checkRateLimit($station);
+
         try {
             $response = $this->client->request('GET', $apiUrl, [
                 'headers' => [
@@ -42,23 +50,56 @@ class GetTrainDataService
             ]);
 
             $status = $response->getStatusCode();
-            if ($status !== 200) {
-                $error = "External API returned HTTP $status for station $station, error:{{$response->getContent(false)}}";
+
+            if ($status === 429) {
+                $retryAfter = $response->getHeaders()['Retry-After'][0] ?? 60; // Default to 60 seconds if not provided
+                $error = "WMATA API rate limit exceeded for station {$station}. Retry after {$retryAfter} seconds.";
+
                 $this->logError($error);
-                return ['Error' => "{{$error}}"];
+                throw new \RuntimeException($error);
+            }
+
+            if ($status !== 200) {
+                $error = "External API returned HTTP $status, " . $response->getContent(false) ?? 'No content';
+                
+                $this->logError($error);
+                throw new \RuntimeException($error);
             }
 
             $contentType = $response->getHeaders()['content-type'][0] ?? '';
             if (!str_contains($contentType, 'application/json')) {
-                $error = "External API returned HTTP $status for station $station: Invalid format error - expected JSON but got '$contentType'";
+                $error = "WMATA API returned HTTP $status: Invalid format error - expected JSON but got '$contentType'";
+                
                 $this->logError($error);
-                return ['Error' => "{{$error}}"];
+                throw new \RuntimeException($error);
             }
             // If we got here, we have a successful JSON response, so we can attempt to parse and map it to our entity
             $data = $response->getContent(false);
             return $this->mapToEntities($data);
         } catch (\Throwable $e) {
-            return ['Error' => $e->getMessage()];
+            $error = "Failed to fetch train data for station {$station}. " . $e->getMessage();
+            
+            $this->logError($error);
+            throw new \RuntimeException($error);
+        }
+    }
+
+    /**
+     * Check the rate limit for the given station and return an error if the limit has been hit.
+     * This uses Symfony's RateLimiter component to track requests and enforce limits.
+     *
+     * @param string $station
+     * @return void
+     */
+    private function checkRateLimit($station): void {
+        $limiter = $this->wmataApiRateLimiter->create($station);
+        $limit = $limiter->consume(1);
+        if (!$limit->isAccepted()) {
+            $retry = $limit->getRetryAfter()?->getTimestamp() - time();
+            $error = "WMATA API rate limit hit for station {$station}. Retry in {$retry}s";
+            
+            $this->logError($error);
+            throw new \RuntimeException($error);
         }
     }
 

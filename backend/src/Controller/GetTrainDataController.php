@@ -13,7 +13,11 @@ class GetTrainDataController
     #[Route('/train-data/{station}')]
     public function getTrainData(string $station, GetTrainDataService $service): Response
     {
-        $data = $service->fetchTrainDataByStation($station);
-        return new Response(json_encode($data), 200, ['Content-Type' => 'application/json']);
+        try {
+            $data = $service->fetchTrainDataByStation($station);
+            return new Response(json_encode($data), 200, ['Content-Type' => 'application/json']);
+        } catch (\Exception $e) {
+            return new Response(json_encode(['Error' => $e->getMessage()]), 500, ['Content-Type' => 'application/json']);
+        }
     }
 }
